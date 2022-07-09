@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+import asyncio
 
 class client(commands.Cog):
     def __init__(self, bot):
@@ -13,6 +14,19 @@ class client(commands.Cog):
         client = self.bot
         game = discord.Game(name=title)
         await client.change_presence(activity=game)
+    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        while True:
+            client = self.bot
+            await client.change_presence(activity = discord.Activity(name="Help:.help", type=discord.ActivityType.playing))
+            await asyncio.sleep(15)
+            await client.change_presence(activity = discord.Activity(name="splatoon3", type=discord.ActivityType.playing))
+            await asyncio.sleep(15)
+            joinserver=len(client.guilds)
+            servers=str(joinserver)
+            await client.change_presence(activity = discord.Activity(name="サーバー数:"+servers, type=discord.ActivityType.playing))
+            await asyncio.sleep(15)
 
     @commands.is_owner()
     @commands.command()
