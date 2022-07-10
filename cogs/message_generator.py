@@ -1,10 +1,19 @@
 "メッセージ作成"
-import sep
+from discord.ext import commands
+import discord
+import asyncio
 
+class mg(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+        self.bot.remove_command('help')
+
+
+BODY_TEXT_1 = "```参加したい人は👍リアクションを付けてください。🗑と🆗リアクションで〆"
 TEST_TAG = "【テスト】"
-BODY_TEXT_1 = "参加したい人は👍リアクションを付けてください。"
-BODY_TEXT_2 = "起案者"
-BODY_TEXT_3 = "は🗑と🆗リアクションで削除出来ます。"
+BODY_TEXT_2 = "募集内容"
+BODY_TEXT_3 = "```"
 HELP_HEAD = "使い方"
 HELP_MESSAGE = """
 使い方
@@ -12,8 +21,7 @@ HELP_MESSAGE = """
 /atumaru 募集文
 ```
 """
-COUNT_TEXT = "現在参加希望者(%d人)\n"
-
+COUNT_TEXT = "> 現在参加希望者(%d人)\n"
 
 def make_command_message(test_flag, auther_menthon, content):
     """
@@ -24,7 +32,7 @@ def make_command_message(test_flag, auther_menthon, content):
     if test_flag:
         command = "/atumaru_test"
     else:
-        command = ".bs"
+        command = ":"
 
     # コマンドに対応したメッセージ
     if content.startswith(command + " "):
@@ -36,12 +44,13 @@ def make_command_message(test_flag, auther_menthon, content):
         if test_flag:
             recruiting = TEST_TAG + recruiting
         body = "%s\n%s\n%s %s %s" % (
-            recruiting,
-            BODY_TEXT_1,
-            BODY_TEXT_2,
-            auther_menthon,
-            BODY_TEXT_3,
-        )
+                recruiting,
+                BODY_TEXT_1,
+                BODY_TEXT_2,
+                content,
+                BODY_TEXT_3,
+                
+            )
         return body, True
     elif content == command:
         # ヘルプ表示
@@ -49,15 +58,6 @@ def make_command_message(test_flag, auther_menthon, content):
         return body, False
     else:
         return None, False
-
-
-def get_owner_mention(line):
-    """
-    起案者 <@123> は🗑と🆗リアクションで削除出来ます。
-    の<@123>の部分を抽出する
-    """
-    return line[len(BODY_TEXT_2) + 1 : -(len(BODY_TEXT_3) + 1)]
-
 
 def make_reaction_update_message(
     test_flag,
@@ -96,8 +96,6 @@ def make_reaction_update_message(
     for line in lines:
         edited += line + "\n"
         if line.startswith(BODY_TEXT_2):
-            # 起案者のメンションを取得する
-            owner = get_owner_mention(line)
             break
     # 削除判定
     if owner in trash_user_mentions and owner in ok_user_mentions:
@@ -111,7 +109,7 @@ def make_reaction_update_message(
         # 参加者一覧
         for mention in user_mentions:
             edited += "%s\n" % mention
-    if sep_flag and len(user_mentions) == 5:
-        # SEP向けマッチング表出力
-        edited += sep.make_matching(user_mentions)
     return edited
+
+def setup(bot):
+    bot.add_cog(mg(bot))
