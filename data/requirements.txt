@@ -5,3 +5,5 @@ pynacl
 google-cloud-texttospeech
 python-dotenv
 requests
+numpy
+tweepy
